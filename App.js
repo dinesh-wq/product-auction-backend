@@ -3,10 +3,14 @@ const express = require('express')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const {v4: uuidv4} = require('uuid')
+const cors = require('cors')
 
 const app = express()
 
 app.use(express.json())
+app.use(cors({
+    origin: 'https://product-auction-frontend.vercel.app/'
+}));
 
 const pool = new Pool({
     connectionString:
