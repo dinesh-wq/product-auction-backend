@@ -2,6 +2,7 @@ const {Pool} = require("pg")
 const express = require('express')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const {v4: uuidv4} = require('uuid')
 
 const app = express()
 
@@ -53,7 +54,7 @@ app.get('/users/:userId', async (request, response) => {
 })
 
 // API 3 (to Login the user)
-app.post('/user/login', async (request, response) =>  {
+app.post('/login', async (request, response) =>  {
     try {
         const {email, password} = request.body
         const dbResponse = await client.query(`SELECT *
@@ -64,10 +65,11 @@ app.post('/user/login', async (request, response) =>  {
             response.json({ok: false, message: 'Email Not Found'})
         }
         else {
-            const originalHashedPassword = data[0].password
+            const originalHashedPassword = data[0].password_hash
+            const user_id = data[0].user_id
             const isPasswordCorrect = await bcrypt.compare(password, originalHashedPassword)
             if (isPasswordCorrect) {
-                const jwt_token = jwt.sign({email, password}, 'dinesh')
+                const jwt_token = jwt.sign({user_id, email, password}, 'dinesh')
                 response.json({ok: true, jwt_token})
             }
             else {
@@ -76,6 +78,28 @@ app.post('/user/login', async (request, response) =>  {
         }
     } catch (e) {
         console.log(`Login Error : ${e.message}`)
+        process.exit(1)
+    }
+})
+
+// API 4 POST (to signup the user)
+app.post('/signup', async (request, response) => {
+    try {
+        const {name, email, password} = request.body
+        const dbResponse = await client.query(`SELECT * FROM users WHERE email='${email}';`)
+        if (dbResponse.rows.length > 0) {
+            response.json({ok: false, message: 'Email Already Exist'})
+        }
+        else {
+            const user_id = uuidv4()
+            const hashed_password = await bcrypt.hash(password, 10)
+            await client.query(`INSERT INTO users (user_id, name, email, password_hash) VALUES ('${user_id}', '${name}', '${email}', '${hashed_password}')`)
+            const token = jwt.sign({user_id, email, password}, 'dinesh')
+            response.json({ok: true, token})
+        }
+    }
+    catch(e) {
+        console.log(`signup error: ${e.message}`)
         process.exit(1)
     }
 })
