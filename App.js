@@ -8,7 +8,13 @@ const app = express()
 
 app.use(express.json())
 
-const pool = new Pool({connectionString: 'postgres://019e8dd0-7535-786e-baaf-123851f830f3:cc878fd6-f81f-4b4e-8097-41a57ee17504@us-west-2.db.thenile.dev:5432/british_auction'})
+const pool = new Pool({
+    connectionString:
+        'postgres://019e8dd0-7535-786e-baaf-123851f830f3:cc878fd6-f81f-4b4e-8097-41a57ee17504@us-west-2.db.thenile.dev:5432/british_auction',
+    ssl: {
+        rejectUnauthorized: false,
+    },
+})
 
 let client = null
 
