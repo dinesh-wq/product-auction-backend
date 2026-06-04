@@ -9,7 +9,7 @@ const app = express()
 
 app.use(express.json())
 app.use(cors({
-    origin: 'https://product-auction-frontend.vercel.app/'
+    origin: 'https://product-auction-frontend.vercel.app'
 }));
 
 const pool = new Pool({
