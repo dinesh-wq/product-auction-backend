@@ -105,7 +105,7 @@ app.post('/signup', async (request, response) => {
             const hashed_password = await bcrypt.hash(password, 10)
             await client.query(`INSERT INTO users (user_id, name, email, password_hash) VALUES ('${user_id}', '${name}', '${email}', '${hashed_password}')`)
             const token = jwt.sign({user_id, email, password}, 'dinesh')
-            response.json({ok: true, token})
+            response.json({ok: true, jwt_token: token})
         }
     }
     catch(e) {
